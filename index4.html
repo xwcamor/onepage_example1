@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Viajes Horizonte | Expediciones de Lujo</title>
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+ <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+ <style>
+  :root {
+   --primary-accent: #0ea5e9; /* Azul cielo vibrante */
+   --bg-dark: #0f172a;
+   --card-bg: rgba(30, 41, 59, 0.85);
+   --glass-border: rgba(255, 255, 255, 0.1);
+   --text-light: #fefefe;
+   --navbar-bg: rgba(15, 23, 42, 0.95);
+  }
+
+  [data-theme="light"] {
+   --bg-dark: #f0f9ff;
+   --card-bg: #ffffff;
+   --glass-border: rgba(0, 0, 0, 0.1);
+   --text-light: #0c4a6e;
+   --navbar-bg: rgba(255, 255, 255, 0.95);
+  }
+
+  [data-theme="adventure"] { /* Tema Desierto/Safari */
+   --bg-dark: #451a03;
+   --card-bg: #78350f;
+   --glass-border: rgba(251, 191, 36, 0.2);
+   --text-light: #fef3c7;
+   --primary-accent: #fbbf24;
+   --navbar-bg: rgba(69, 26, 3, 0.95);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; transition: 0.3s; }
+  html { scroll-behavior: smooth; }
+  body { background-color: var(--bg-dark); color: var(--text-light); overflow-x: hidden; }
+
+  /* --- MENÚ LATERAL --- */
+  .menu-btn { font-size: 1.5rem; color: var(--text-light); cursor: pointer; margin-right: 15px; display: none; align-items: center; }
+  .side-menu { position: fixed; top: 0; left: -250px; width: 250px; height: 100%; background: var(--navbar-bg); backdrop-filter: blur(15px); z-index: 2001; padding: 80px 30px; border-right: 1px solid var(--glass-border); display: flex; flex-direction: column; gap: 20px; }
+  .side-menu.active { left: 0; }
+  .side-menu a { text-decoration: none; color: var(--text-light); font-weight: 600; font-size: 1rem; text-transform: uppercase; }
+  .close-btn { position: absolute; top: 25px; right: 25px; font-size: 1.5rem; cursor: pointer; color: var(--primary-accent); }
+
+  /* --- ANIMACIONES --- */
+  @keyframes slideInLeft { from { opacity: 0; transform: translateX(-100px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes zoomInUp { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: scale(1); } }
+  @keyframes slideInRight { from { opacity: 0; transform: translateX(100px); } to { opacity: 1; transform: translateX(0); } }
+
+  .reveal-left, .reveal-zoom, .reveal-right { opacity: 0; }
+  .active-left { animation: slideInLeft 1s ease-out forwards; }
+  .active-zoom { animation: zoomInUp 1s ease-out forwards; }
+  .active-right { animation: slideInRight 1s ease-out forwards; }
+
+  /* --- FLIP CARD --- */
+  .destinos-grid, .multimedia-grid { display: grid; gap: 30px; margin-top: 40px; perspective: 1000px; }
+  .destinos-grid { grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); }
+  .multimedia-grid { grid-template-columns: repeat(3, 1fr); }
+
+  .flip-card { background-color: transparent; height: 450px; perspective: 1000px; }
+  .flip-card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.8s; transform-style: preserve-3d; cursor: pointer; }
+  .flip-card:hover .flip-card-inner { transform: rotateY(180deg); }
+  .flip-card-front, .flip-card-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; border-radius: 20px; overflow: hidden; border: 1px solid var(--glass-border); }
+  .flip-card-front { background-color: #222; }
+  .flip-card-front img { width: 100%; height: 100%; object-fit: cover; }
+  .flip-card-back { background-color: var(--card-bg); color: var(--text-light); transform: rotateY(180deg); display: flex; flex-direction: column; justify-content: center; padding: 30px; text-align: left; border: 1px solid var(--primary-accent); }
+  .flip-card-back h3, .flip-card-back h4 { color: var(--primary-accent); margin-bottom: 10px; }
+  .flip-card-back p { font-size: 0.85rem; line-height: 1.5; opacity: 0.9; }
+
+  /* --- NAVBAR --- */
+  .navbar { display: flex; justify-content: space-between; align-items: center; padding: 20px 8%; background: var(--navbar-bg); backdrop-filter: blur(15px); position: fixed; width: 100%; top: 0; z-index: 1000; border-bottom: 1px solid var(--glass-border); }
+  .logo { font-size: 1.5rem; font-weight: 700; color: var(--primary-accent); letter-spacing: 2px; }
+  .nav-links { display: flex; list-style: none; gap: 30px; }
+  .nav-links li a { text-decoration: none; color: var(--text-light); text-transform: uppercase; font-size: 0.75rem; font-weight: 600; }
+  .nav-links li a.active { color: var(--primary-accent); border-bottom: 2px solid var(--primary-accent); padding-bottom: 5px; }
+  .theme-select { background: var(--card-bg); color: var(--text-light); border: 1px solid var(--glass-border); padding: 5px; border-radius: 5px; }
+
+  /* --- SERVICIOS --- */
+  .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 25px; margin-top: 40px; }
+  .service-card { background: var(--card-bg); padding: 40px 30px; border-radius: 20px; border: 1px solid var(--glass-border); display: flex; flex-direction: column; justify-content: space-between; }
+  .service-card:hover { transform: translateY(-10px); border-color: var(--primary-accent); }
+  .service-card i { font-size: 2.5rem; color: var(--primary-accent); margin-bottom: 20px; }
+
+  @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 50% { transform: translateX(5px); } 100% { transform: translateX(0); } }
+  .btn-shake:hover { animation: shake 0.4s infinite; }
+
+  section { padding: 120px 8% 80px; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; }
+  .hero-section { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: center; }
+  .hero-content h1 { font-size: 3.5rem; line-height: 1.2; margin-bottom: 20px; min-height: 120px; }
+  .carousel-container { width: 100%; height: 450px; border-radius: 25px; overflow: hidden; border: 1px solid var(--glass-border); }
+  .carousel-track { display: flex; width: 600%; height: 100%; transition: 0.5s; }
+  .carousel-track img { width: 16.666%; object-fit: cover; }
+  .wa-float { position: fixed; bottom: 30px; right: 30px; background: #25d366; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; z-index: 2000; }
+
+  @media (max-width: 992px) {
+   .menu-btn { display: flex; }
+   .nav-links { display: none; }
+   .services-grid, .multimedia-grid { grid-template-columns: repeat(2, 1fr); }
+   .hero-section { grid-template-columns: 1fr; text-align: center; }
+  }
+  @media (max-width: 600px) {
+   .services-grid, .multimedia-grid { grid-template-columns: 1fr; }
+  }
+ </style>
+</head>
+<body data-theme="dark">
+
+ <div class="side-menu" id="sideMenu">
+  <i class="fas fa-times close-btn" onclick="toggleMenu()"></i>
+  <a href="#inicio" onclick="toggleMenu()">Inicio</a>
+  <a href="#nosotros" onclick="toggleMenu()">Sobre Nosotros</a>
+  <a href="#servicios" onclick="toggleMenu()">Servicios VIP</a>
+  <a href="#multimedia" onclick="toggleMenu()">Destinos</a>
+ </div>
+
+ <nav class="navbar">
+  <div class="logo-container" style="display:flex; align-items:center;">
+   <div class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
+   <div class="logo">VIAJES<span style="opacity: 0.7;">HORIZONTE</span></div>
+  </div>
+  <ul class="nav-links">
+   <li><a href="#inicio" class="nav-item active">Inicio</a></li>
+   <li><a href="#nosotros" class="nav-item">Sobre Nosotros</a></li>
+   <li><a href="#servicios" class="nav-item">Servicios VIP</a></li>
+   <li><a href="#multimedia" class="nav-item">Destinos</a></li>
+  </ul>
+  <select class="theme-select" onchange="document.body.setAttribute('data-theme', this.value)">
+   <option value="dark">Ocean Night</option>
+   <option value="light">Cloudy Day</option>
+   <option value="adventure">Wild Safari</option>
+  </select>
+ </nav>
+
+ <section id="inicio" class="hero-section">
+  <div class="hero-content">
+   <h1 id="typing-title"></h1>
+   <p id="typing-p"></p>
+   <div style="display:flex; gap:15px; margin-top:20px;">
+    <a href="#multimedia"><button class="btn-shake" style="background:var(--primary-accent); border:none; padding:15px 35px; border-radius:8px; font-weight:bold; cursor:pointer; color: white;">Explorar Destinos</button></a>
+    <a href="#"><button class="btn-shake" style="background:transparent; border:1px solid var(--text-light); color:var(--text-light); padding:15px 35px; border-radius:8px; font-weight:bold; cursor:pointer;">Plan a Medida</button></a>
+   </div>
+  </div>
+  <div class="carousel-container">
+   <div class="carousel-track" id="track">
+    <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80">
+    <img src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=800&q=80">
+    <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80">
+    <img src="https://images.unsplash.com/photo-1493246507139-91e8fad9978e?auto=format&fit=crop&w=800&q=80">
+    <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=80">
+    <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80">
+   </div>
+  </div>
+ </section>
+
+ <section id="nosotros" style="padding: 100px 8%;">
+ <h2 class="reveal-left" data-animation="active-left" style="font-size: 2.8rem; text-align:center;">Expertos en <span>Experiencias</span></h2>
+ 
+ <div style="max-width: 850px; margin: 50px auto 0; display: flex; align-items: stretch; background: var(--card-bg); border-radius: 20px; overflow: hidden; border: 1px solid var(--glass-border); box-shadow: 0 20px 40px rgba(0,0,0,0.2); flex-wrap: wrap;">
+  
+  <div style="flex: 0 0 280px; height: 450px; overflow: hidden;">
+   <img src="https://png.pngtree.com/png-vector/20241225/ourlarge/pngtree-professional-cartoon-woman-in-a-suit-holding-clipboard-png-image_14899459.png"
+      style="width: 100%; height: 100%; object-fit: cover; border-right: 2px solid var(--primary-accent);">
+  </div>
+
+  <div style="flex: 1; padding: 50px; min-width: 300px; display: flex; flex-direction: column; justify-content: center;">
+   <span style="color: var(--primary-accent); text-transform: uppercase; letter-spacing: 3px; font-size: 0.8rem; font-weight: 700; margin-bottom: 10px; display: block;">CEO & Fundador</span>
+   <h3 style="font-size: 2.2rem; margin-bottom: 15px; line-height: 1.1;">Ruth Ttito</h3>
+   
+   <div style="width: 50px; height: 3px; background: var(--primary-accent); margin-bottom: 25px;"></div>
+   
+   <p style="font-size: 1rem; line-height: 1.8; opacity: 0.8; margin-bottom: 20px;">
+    <b>Travel Designer</b> con más de 15 años recorriendo el mundo para encontrar rincones secretos.
+   </p>
+   
+   <p style="font-size: 0.95rem; line-height: 1.7; opacity: 0.8;">
+    Ruth cree que viajar no es solo ver lugares, sino cambiar la forma de ver la vida. Especializado en logística de lujo y expediciones de impacto mínimo, garantiza que cada itinerario sea único e irrepetible.
+   </p>
+
+   <div style="margin-top: 30px; display: flex; gap: 20px; font-size: 1.2rem; color: var(--primary-accent);">
+    <i class="fab fa-instagram" style="cursor:pointer;"></i>
+    <i class="fab fa-linkedin" style="cursor:pointer;"></i>
+    <i class="fas fa-paper-plane" style="cursor:pointer;"></i>
+   </div>
+  </div>
+
+ </div>
+</section>
+
+ <section id="servicios">
+  <h2 class="reveal-zoom" data-animation="active-zoom" style="font-size: 2.8rem; text-align:center;">Servicios <span>Premium</span></h2>
+  <div class="services-grid">
+   <div class="service-card"><div><i class="fas fa-plane-departure"></i><h3>Jets Privados</h3><p>Vuelos exclusivos sin esperas, con catering gourmet y privacidad absoluta.</p></div><button class="btn-shake" style="background:var(--primary-accent); border:none; padding:12px 25px; border-radius:8px; font-weight:bold; cursor:pointer; color:white; margin-top:20px;">Reservar</button></div>
+   <div class="service-card"><div><i class="fas fa-hotel"></i><h3>Hoteles Boutique</h3><p>Acceso a las suites más codiciadas y villas privadas en los 5 continentes.</p></div><button class="btn-shake" style="background:var(--primary-accent); border:none; padding:12px 25px; border-radius:8px; font-weight:bold; cursor:pointer; color:white; margin-top:20px;">Ver Selección</button></div>
+   <div class="service-card"><div><i class="fas fa-concierge-bell"></i><h3>Concierge 24/7</h3><p>Un asistente personal a tu disposición en cualquier zona horaria del planeta.</p></div><button class="btn-shake" style="background:var(--primary-accent); border:none; padding:12px 25px; border-radius:8px; font-weight:bold; cursor:pointer; color:white; margin-top:20px;">Saber más</button></div>
+   <div class="service-card"><div><i class="fas fa-map-marked-alt"></i><h3>Rutas Inéditas</h3><p>Experiencias culturales inmersivas lejos de las trampas para turistas.</p></div><button class="btn-shake" style="background:var(--primary-accent); border:none; padding:12px 25px; border-radius:8px; font-weight:bold; cursor:pointer; color:white; margin-top:20px;">Explorar</button></div>
+   <div class="service-card"><div><i class="fas fa-shield-alt"></i><h3>Seguro Total</h3><p>Cobertura médica y de cancelación premium para viajar sin preocupaciones.</p></div><button class="btn-shake" style="background:var(--primary-accent); border:none; padding:12px 25px; border-radius:8px; font-weight:bold; cursor:pointer; color:white; margin-top:20px;">Detalles</button></div>
+   <div class="service-card"><div><i class="fas fa-globe-americas"></i><h3>Eco-Turismo</h3><p>Compensación de huella de carbono incluida en cada una de tus reservas.</p></div><button class="btn-shake" style="background:var(--primary-accent); border:none; padding:12px 25px; border-radius:8px; font-weight:bold; cursor:pointer; color:white; margin-top:20px;">Eco-Plan</button></div>
+  </div>
+ </section>
+
+ <section id="multimedia">
+  <h2 class="reveal-right" data-animation="active-right" style="font-size: 2.8rem; text-align:center; margin-bottom:50px;">Destinos <span>Inspiradores</span></h2>
+  <div class="multimedia-grid">
+   <div class="flip-card"><div class="flip-card-inner"><div class="flip-card-front"><img src="https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=500&q=80"></div><div class="flip-card-back"><h4>Bali, Indonesia</h4><p>Templos ancestrales, arrozales infinitos y el mejor bienestar espiritual del mundo.</p></div></div></div>
+   <div class="flip-card"><div class="flip-card-inner"><div class="flip-card-front"><img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=500&q=80"></div><div class="flip-card-back"><h4>Santorini, Grecia</h4><p>Atardeceres mágicos sobre el mar Egeo en villas de arquitectura cicládica.</p></div></div></div>
+   <div class="flip-card"><div class="flip-card-inner"><div class="flip-card-front"><img src="https://www.cinconoticias.com/wp-content/uploads/Islas-Maldivas-1.jpg"></div><div class="flip-card-back"><h4>Maldivas</h4><p>Bungalows sobre el agua cristalina para una desconexión total y absoluta.</p></div></div></div>
+  <div class="flip-card"><div class="flip-card-inner"><div class="flip-card-front"><img src="https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=500&q=80"></div><div class="flip-card-back"><h4>Toscana, Italia</h4><p>Gastronomía de clase mundial y paisajes de colinas doradas y viñedos.</p></div></div></div>
+   <div class="flip-card"><div class="flip-card-inner"><div class="flip-card-front"><img src="https://islandia360.com/wp-content/uploads/2023/07/Auroras-Boreales-Islandia-grupo-reykjavik.jpg"></div><div class="flip-card-back"><h4>Reykjavik, Islandia</h4><p>La danza de las auroras boreales y la fuerza de la naturaleza volcánica.</p></div></div></div>
+   <div class="flip-card"><div class="flip-card-inner"><div class="flip-card-front"><img src="https://images.unsplash.com/photo-1523482580672-f109ba8cb9be?auto=format&fit=crop&w=500&q=80"></div><div class="flip-card-back"><h4>Sídney, Australia</h4><p>Una mezcla perfecta de cosmopolitismo, surf y maravillas naturales.</p></div></div></div>
+  </div>
+ </section>
+
+ <a href="#" class="wa-float"><i class="fab fa-whatsapp"></i></a>
+
+ <script>
+  function toggleMenu() { document.getElementById('sideMenu').classList.toggle('active'); }
+
+  const titleText = "Tu Viaje, Tu Historia.";
+  const pText = "Diseñamos expediciones de lujo personalizadas a los rincones más remotos y exclusivos del planeta.";
+  let isTyping = false;
+
+  function typeWriter(text, elementId, speed, callback) {
+   let i = 0; const element = document.getElementById(elementId);
+   element.innerHTML = "";
+   function type() { if (i < text.length) { element.innerHTML += text.charAt(i); i++; setTimeout(type, speed); } else if (callback) callback(); }
+   type();
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+   entries.forEach(entry => {
+    const ani = entry.target.dataset.animation;
+    const id = entry.target.getAttribute("id");
+    if (entry.isIntersecting) {
+     if (ani) entry.target.classList.add(ani);
+     if (id === "inicio" && !isTyping) {
+      isTyping = true;
+      typeWriter(titleText, "typing-title", 50, () => {
+       typeWriter(pText, "typing-p", 30, () => isTyping = false);
+      });
+     }
+     if (id) {
+      document.querySelectorAll('.nav-item').forEach(link => {
+       link.classList.remove('active');
+       if (link.getAttribute('href') === `#${id}`) link.classList.add('active');
+      });
+     }
+    }
+   });
+  }, { threshold: 0.3 });
+
+  document.querySelectorAll('section, h2[data-animation]').forEach(el => observer.observe(el));
+  const track = document.getElementById('track');
+  let idx = 0; setInterval(() => { idx++; if(idx >= 6) idx = 0; track.style.transform = `translateX(-${idx * (100/6)}%)`; }, 4000);
+ </script>
+</body>
+</html>
